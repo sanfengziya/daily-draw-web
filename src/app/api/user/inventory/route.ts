@@ -34,14 +34,21 @@ export async function GET(request: NextRequest) {
         [uid]
       );
 
-      const cards = rows as any[];
+      const cards = rows as Array<{
+        id: number;
+        uid: string;
+        card_id: number;
+        card_name: string;
+        card_rarity: string;
+        obtained_at: string;
+      }>;
 
       return NextResponse.json({
         success: true,
         cards: cards.map(card => ({
           id: card.id,
-          uid: card.uid.toString(),
-          card_id: card.card_id,
+          uid: card.uid,
+          card_id: card.card_id.toString(),
           card_name: card.card_name,
           card_rarity: card.card_rarity,
           obtained_at: card.obtained_at

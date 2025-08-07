@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { UserCard } from '@/types/user';
 
 interface UserInventoryProps {
@@ -12,11 +12,7 @@ export default function UserInventory({ uid }: UserInventoryProps) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
-  useEffect(() => {
-    fetchInventory();
-  }, [uid]);
-
-  const fetchInventory = async () => {
+  const fetchInventory = useCallback(async () => {
     try {
       setLoading(true);
       const response = await fetch(`/api/user/inventory?uid=${uid}`);
@@ -33,7 +29,7 @@ export default function UserInventory({ uid }: UserInventoryProps) {
     } finally {
       setLoading(false);
     }
-  };
+  }, [uid]);
 
   const getRarityColor = (rarity: string) => {
     switch (rarity.toUpperCase()) {
@@ -45,6 +41,10 @@ export default function UserInventory({ uid }: UserInventoryProps) {
       default: return 'text-gray-600 bg-gray-100';
     }
   };
+
+  useEffect(() => {
+    fetchInventory();
+  }, [fetchInventory]);
 
   if (loading) {
     return (

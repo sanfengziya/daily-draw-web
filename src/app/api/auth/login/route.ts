@@ -33,7 +33,14 @@ export async function POST(request: NextRequest) {
         [uid]
       );
 
-      const users = rows as any[];
+      const users = rows as Array<{
+        user_id: string;
+        points: number;
+        last_draw: string | null;
+        last_wheel: string | null;
+        paid_draws_today: number;
+        last_paid_draw_date: string | null;
+      }>;
 
       if (users.length === 0) {
         // 用户不存在，创建新用户
@@ -47,7 +54,14 @@ export async function POST(request: NextRequest) {
           'SELECT * FROM users WHERE user_id = ?',
           [uid]
         );
-        const newUsers = newUserRows as any[];
+        const newUsers = newUserRows as Array<{
+          user_id: string;
+          points: number;
+          last_draw: string | null;
+          last_wheel: string | null;
+          paid_draws_today: number;
+          last_paid_draw_date: string | null;
+        }>;
         const user = newUsers[0];
 
         return NextResponse.json({
