@@ -197,7 +197,7 @@ export default function UserInventory({ uid }: UserInventoryProps) {
               <div key={card.id} className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow relative">
                 {/* 堆叠数量显示 */}
                 {card.count && card.count > 1 && (
-                  <div className="absolute top-2 right-2 bg-blue-500 text-white text-xs px-2 py-1 rounded-full font-bold z-10">
+                  <div className="absolute bottom-2 right-2 bg-blue-500 text-white text-xs px-2 py-1 rounded-full font-bold z-10">
                     x{card.count}
                   </div>
                 )}
