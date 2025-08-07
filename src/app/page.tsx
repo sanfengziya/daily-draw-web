@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useSession } from 'next-auth/react';
 import GachaSystem from '../components/GachaSystem';
 import LoginForm from '../components/LoginForm';
 import UserInfo from '../components/UserInfo';
@@ -9,61 +10,48 @@ import { User } from '../types/user';
 import '../styles/gacha.css';
 
 export default function Home() {
+  const { data: session, status } = useSession();
   const [user, setUser] = useState<User | null>(null);
   const [activeTab, setActiveTab] = useState<'gacha' | 'inventory'>('gacha');
   const [loading, setLoading] = useState(true);
 
-  // 检查Discord登录回调
+  // 处理next-auth session状态
   useEffect(() => {
-    const checkDiscordLogin = async () => {
-      const urlParams = new URLSearchParams(window.location.search);
-      const discordLogin = urlParams.get('discord_login');
-      const uid = urlParams.get('uid');
-      const username = urlParams.get('username');
-      const error = urlParams.get('error');
-
-      if (error) {
-        console.error('Discord登录错误:', error);
-        alert('Discord登录失败，请重试');
-        // 清理URL参数
-        window.history.replaceState({}, document.title, window.location.pathname);
-        setLoading(false);
-        return;
+    const fetchUserData = async () => {
+      if (status === 'loading') {
+        return; // 仍在加载session
       }
-
-      if (discordLogin === 'success' && uid) {
+      
+      if (status === 'authenticated' && session?.user?.id) {
         try {
-          // 使用Discord UID登录
+          // 使用session中的用户ID获取用户数据
           const response = await fetch('/api/auth/login', {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ uid }),
+            body: JSON.stringify({ uid: session.user.id }),
           });
 
           const data = await response.json();
           if (data.success && data.user) {
             setUser(data.user);
-            console.log(`Discord用户登录成功: ${username} (${uid})`);
+            console.log(`用户登录成功: ${session.user.name} (${session.user.id})`);
           } else {
-            console.error('登录失败:', data.message);
-            alert('登录失败，请重试');
+            console.error('获取用户数据失败:', data.message);
           }
         } catch (error) {
-          console.error('登录请求错误:', error);
-          alert('登录失败，请重试');
+          console.error('获取用户数据错误:', error);
         }
-        
-        // 清理URL参数
-        window.history.replaceState({}, document.title, window.location.pathname);
+      } else if (status === 'unauthenticated') {
+        setUser(null);
       }
       
       setLoading(false);
     };
 
-    checkDiscordLogin();
-  }, []);
+    fetchUserData();
+  }, [session, status]);
 
   const handleLogin = (userData: User) => {
     setUser(userData);

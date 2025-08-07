@@ -1,5 +1,6 @@
 'use client';
 
+import { signOut } from 'next-auth/react';
 import { User } from '@/types/user';
 
 interface UserInfoProps {
@@ -8,6 +9,10 @@ interface UserInfoProps {
 }
 
 export default function UserInfo({ user, onLogout }: UserInfoProps) {
+  const handleLogout = () => {
+    signOut();
+    onLogout();
+  };
   return (
     <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
       <div className="flex justify-between items-start">
@@ -47,7 +52,7 @@ export default function UserInfo({ user, onLogout }: UserInfoProps) {
         </div>
         
         <button
-          onClick={onLogout}
+          onClick={handleLogout}
           className="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 transition-colors text-sm"
         >
           退出登录

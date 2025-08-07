@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { signIn } from 'next-auth/react';
 import { User } from '@/types/user';
 
 interface LoginFormProps {
@@ -13,7 +14,7 @@ export default function LoginForm({ onLogin }: LoginFormProps) {
   const [error, setError] = useState('');
 
   const handleDiscordLogin = () => {
-    window.location.href = '/api/auth/discord';
+    signIn('discord');
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
