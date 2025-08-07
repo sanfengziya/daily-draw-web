@@ -33,6 +33,23 @@ export async function POST(request: NextRequest) {
     const connection = await mysql.createConnection(dbConfig);
 
     try {
+      // 检查用户是否存在
+      const [userRows] = await connection.execute(
+        'SELECT user_id FROM users WHERE user_id = ?',
+        [uid]
+      );
+      
+      const users = userRows as Array<{ user_id: string }>;
+      
+      // 如果用户不存在，先创建用户
+      if (users.length === 0) {
+        await connection.execute(
+          'INSERT INTO users (user_id, points, paid_draws_today) VALUES (?, ?, ?)',
+          [uid, 0, 0]
+        );
+        console.log(`为添加卡片创建新用户: ${uid}`);
+      }
+      
       // 添加卡片到用户库存
       await connection.execute(
         'INSERT INTO user_cards (uid, card_id, card_name, card_rarity) VALUES (?, ?, ?, ?)',
