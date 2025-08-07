@@ -15,6 +15,8 @@ export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
     const uid = searchParams.get('uid');
+    const filterType = searchParams.get('filterType'); // 'stars' | 'rarity' | null
+    const filterValue = searchParams.get('filterValue'); // 具体的星级或稀有度值
 
     if (!uid) {
       return NextResponse.json({
@@ -28,10 +30,34 @@ export async function GET(request: NextRequest) {
     const connection = await mysql.createConnection(dbConfig);
 
     try {
-      // 查询用户的卡片库存
+      // 构建查询条件
+      let whereClause = 'WHERE uid = ?';
+      const queryParams: any[] = [uid];
+      
+      if (filterType === 'stars' && filterValue) {
+        whereClause += ' AND stars = ?';
+        queryParams.push(parseInt(filterValue));
+      } else if (filterType === 'rarity' && filterValue) {
+        whereClause += ' AND card_rarity = ?';
+        queryParams.push(filterValue);
+      }
+      
+      // 查询用户的卡片库存，按卡片ID和星级分组以实现堆叠
       const [rows] = await connection.execute(
-        'SELECT id, uid, card_id, card_name, card_rarity, stars, obtained_at FROM user_cards WHERE uid = ? ORDER BY obtained_at DESC',
-        [uid]
+        `SELECT 
+          MIN(id) as id,
+          uid, 
+          card_id, 
+          card_name, 
+          card_rarity, 
+          stars, 
+          COUNT(*) as count,
+          MAX(obtained_at) as obtained_at 
+        FROM user_cards 
+        ${whereClause} 
+        GROUP BY uid, card_id, card_name, card_rarity, stars 
+        ORDER BY obtained_at DESC`,
+        queryParams
       );
 
       const cards = rows as Array<{
@@ -41,6 +67,7 @@ export async function GET(request: NextRequest) {
         card_name: string;
         card_rarity: string;
         stars: number;
+        count: number;
         obtained_at: string;
       }>;
 
@@ -53,6 +80,7 @@ export async function GET(request: NextRequest) {
           card_name: card.card_name,
           card_rarity: card.card_rarity,
           stars: card.stars,
+          count: card.count,
           obtained_at: card.obtained_at
         })),
         message: '库存获取成功'

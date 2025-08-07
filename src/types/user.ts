@@ -17,6 +17,7 @@ export interface UserCard {
   card_rarity: string;
   stars: number;
   obtained_at: string;
+  count?: number; // 堆叠数量，可选字段
 }
 
 // 登录请求接口

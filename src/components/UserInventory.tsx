@@ -11,11 +11,20 @@ export default function UserInventory({ uid }: UserInventoryProps) {
   const [cards, setCards] = useState<UserCard[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [filterType, setFilterType] = useState<'stars' | 'rarity' | ''>('');
+  const [filterValue, setFilterValue] = useState<string>('');
+  const [availableStars, setAvailableStars] = useState<number[]>([]);
+  const [availableRarities, setAvailableRarities] = useState<string[]>([]);
 
   const fetchInventory = useCallback(async () => {
     try {
       setLoading(true);
-      const response = await fetch(`/api/user/inventory?uid=${uid}`);
+      let url = `/api/user/inventory?uid=${uid}`;
+      if (filterType && filterValue) {
+        url += `&filterType=${filterType}&filterValue=${filterValue}`;
+      }
+      
+      const response = await fetch(url);
       const data = await response.json();
 
       if (data.success) {
@@ -28,6 +37,24 @@ export default function UserInventory({ uid }: UserInventoryProps) {
       setError('网络错误，请稍后重试');
     } finally {
       setLoading(false);
+    }
+  }, [uid, filterType, filterValue]);
+
+  // 获取所有可用的星级和稀有度选项
+  const fetchFilterOptions = useCallback(async () => {
+    try {
+      const response = await fetch(`/api/user/inventory?uid=${uid}`);
+      const data = await response.json();
+      
+      if (data.success) {
+        const starsSet = new Set<number>(data.cards.map((card: UserCard) => card.stars));
+        const stars = Array.from(starsSet).sort((a: number, b: number) => a - b);
+        const rarities = [...new Set(data.cards.map((card: UserCard) => card.card_rarity))] as string[];
+        setAvailableStars(stars);
+        setAvailableRarities(rarities);
+      }
+    } catch (error) {
+      console.error('获取筛选选项错误:', error);
     }
   }, [uid]);
 
@@ -48,9 +75,25 @@ export default function UserInventory({ uid }: UserInventoryProps) {
     ));
   };
 
+  // 处理筛选器变化
+  const handleFilterChange = (type: 'stars' | 'rarity' | '', value: string) => {
+    setFilterType(type);
+    setFilterValue(value);
+  };
+
+  // 重置筛选器
+  const resetFilter = () => {
+    setFilterType('');
+    setFilterValue('');
+  };
+
   useEffect(() => {
     fetchInventory();
   }, [fetchInventory]);
+
+  useEffect(() => {
+    fetchFilterOptions();
+  }, [fetchFilterOptions]);
 
   if (loading) {
     return (
@@ -79,6 +122,65 @@ export default function UserInventory({ uid }: UserInventoryProps) {
     <div className="bg-white rounded-lg shadow-lg p-6">
       <h2 className="text-2xl font-bold mb-6 text-gray-800">我的卡片库存</h2>
       
+      {/* 筛选器 */}
+      <div className="mb-6 p-4 bg-gray-50 rounded-lg">
+        <div className="flex flex-wrap gap-4 items-center">
+          <div className="flex items-center gap-2">
+            <label className="text-sm font-medium text-gray-700">筛选类型:</label>
+            <select 
+              value={filterType} 
+              onChange={(e) => handleFilterChange(e.target.value as 'stars' | 'rarity' | '', '')}
+              className="px-3 py-1 border border-gray-300 rounded-md text-sm"
+            >
+              <option value="">全部</option>
+              <option value="stars">按星级</option>
+              <option value="rarity">按稀有度</option>
+            </select>
+          </div>
+          
+          {filterType === 'stars' && (
+            <div className="flex items-center gap-2">
+              <label className="text-sm font-medium text-gray-700">星级:</label>
+              <select 
+                value={filterValue} 
+                onChange={(e) => handleFilterChange('stars', e.target.value)}
+                className="px-3 py-1 border border-gray-300 rounded-md text-sm"
+              >
+                <option value="">选择星级</option>
+                {availableStars.map(star => (
+                  <option key={star} value={star.toString()}>{star}星</option>
+                ))}
+              </select>
+            </div>
+          )}
+          
+          {filterType === 'rarity' && (
+            <div className="flex items-center gap-2">
+              <label className="text-sm font-medium text-gray-700">稀有度:</label>
+              <select 
+                value={filterValue} 
+                onChange={(e) => handleFilterChange('rarity', e.target.value)}
+                className="px-3 py-1 border border-gray-300 rounded-md text-sm"
+              >
+                <option value="">选择稀有度</option>
+                {availableRarities.map(rarity => (
+                  <option key={rarity} value={rarity}>{rarity}</option>
+                ))}
+              </select>
+            </div>
+          )}
+          
+          {(filterType && filterValue) && (
+            <button 
+              onClick={resetFilter}
+              className="px-3 py-1 bg-gray-500 text-white rounded-md text-sm hover:bg-gray-600 transition-colors"
+            >
+              重置筛选
+            </button>
+          )}
+        </div>
+      </div>
+      
       {cards.length === 0 ? (
         <div className="text-center py-8 text-gray-500">
           <p className="text-lg mb-2">您还没有任何卡片</p>
@@ -87,12 +189,19 @@ export default function UserInventory({ uid }: UserInventoryProps) {
       ) : (
         <>
           <div className="mb-4 text-sm text-gray-600">
-            总计: {cards.length} 张卡片
+            总计: {cards.reduce((total, card) => total + (card.count || 1), 0)} 张卡片 ({cards.length} 种不同卡片)
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {cards.map((card) => (
-              <div key={card.id} className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
+              <div key={card.id} className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow relative">
+                {/* 堆叠数量显示 */}
+                {card.count && card.count > 1 && (
+                  <div className="absolute top-2 right-2 bg-blue-500 text-white text-xs px-2 py-1 rounded-full font-bold z-10">
+                    x{card.count}
+                  </div>
+                )}
+                
                 <div className="flex justify-between items-start mb-2">
                   <h3 className="font-semibold text-gray-800 truncate">{card.card_name}</h3>
                   <span className={`px-2 py-1 rounded-full text-xs font-medium ${getRarityColor(card.card_rarity)}`}>
