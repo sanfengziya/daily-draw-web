@@ -15,14 +15,15 @@ interface AddCardRequest {
   card_id: string;
   card_name: string;
   card_rarity: string;
+  stars: number;
 }
 
 export async function POST(request: NextRequest) {
   try {
     const body: AddCardRequest = await request.json();
-    const { uid, card_id, card_name, card_rarity } = body;
+    const { uid, card_id, card_name, card_rarity, stars } = body;
 
-    if (!uid || !card_id || !card_name || !card_rarity) {
+    if (!uid || !card_id || !card_name || !card_rarity || stars === undefined) {
       return NextResponse.json({
         success: false,
         message: '缺少必要参数'
@@ -52,8 +53,8 @@ export async function POST(request: NextRequest) {
       
       // 添加卡片到用户库存
       await connection.execute(
-        'INSERT INTO user_cards (uid, card_id, card_name, card_rarity) VALUES (?, ?, ?, ?)',
-        [uid, card_id, card_name, card_rarity]
+        'INSERT INTO user_cards (uid, card_id, card_name, card_rarity, stars) VALUES (?, ?, ?, ?, ?)',
+        [uid, card_id, card_name, card_rarity, stars]
       );
 
       return NextResponse.json({

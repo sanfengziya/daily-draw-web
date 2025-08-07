@@ -15,6 +15,7 @@ export interface UserCard {
   card_id: string;
   card_name: string;
   card_rarity: string;
+  stars: number;
   obtained_at: string;
 }
 

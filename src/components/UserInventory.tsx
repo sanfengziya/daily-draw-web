@@ -42,6 +42,12 @@ export default function UserInventory({ uid }: UserInventoryProps) {
     }
   };
 
+  const generateStars = (stars: number) => {
+    return Array.from({ length: stars }, (_, i) => (
+      <span key={i} className="text-yellow-400">★</span>
+    ));
+  };
+
   useEffect(() => {
     fetchInventory();
   }, [fetchInventory]);
@@ -96,6 +102,11 @@ export default function UserInventory({ uid }: UserInventoryProps) {
                 
                 <div className="text-sm text-gray-600 space-y-1">
                   <p>卡片ID: {card.card_id}</p>
+                  <div className="flex items-center gap-1">
+                    <span>星级:</span>
+                    <div className="flex">{generateStars(card.stars)}</div>
+                    <span>({card.stars}星)</span>
+                  </div>
                   <p>获得时间: {new Date(card.obtained_at).toLocaleString('zh-CN')}</p>
                 </div>
               </div>

@@ -30,7 +30,7 @@ export async function GET(request: NextRequest) {
     try {
       // 查询用户的卡片库存
       const [rows] = await connection.execute(
-        'SELECT * FROM user_cards WHERE uid = ? ORDER BY obtained_at DESC',
+        'SELECT id, uid, card_id, card_name, card_rarity, stars, obtained_at FROM user_cards WHERE uid = ? ORDER BY obtained_at DESC',
         [uid]
       );
 
@@ -40,6 +40,7 @@ export async function GET(request: NextRequest) {
         card_id: number;
         card_name: string;
         card_rarity: string;
+        stars: number;
         obtained_at: string;
       }>;
 
@@ -51,6 +52,7 @@ export async function GET(request: NextRequest) {
           card_id: card.card_id.toString(),
           card_name: card.card_name,
           card_rarity: card.card_rarity,
+          stars: card.stars,
           obtained_at: card.obtained_at
         })),
         message: '库存获取成功'

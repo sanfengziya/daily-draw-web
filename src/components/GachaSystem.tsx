@@ -73,7 +73,8 @@ export default function GachaSystem({ user }: GachaSystemProps) {
             uid: user.user_id,
             card_id: card.id.toString(),
             card_name: card.name,
-            card_rarity: card.rarity
+            card_rarity: card.rarity,
+            stars: card.stars
           }),
         });
       }
