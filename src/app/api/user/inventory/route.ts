@@ -32,7 +32,7 @@ export async function GET(request: NextRequest) {
     try {
       // 构建查询条件
       let whereClause = 'WHERE uid = ?';
-      const queryParams: any[] = [uid];
+      const queryParams: (string | number)[] = [uid];
       
       if (filterType === 'stars' && filterValue) {
         whereClause += ' AND stars = ?';

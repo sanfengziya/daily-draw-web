@@ -2,10 +2,10 @@
 
 import { useState } from 'react';
 import { signIn } from 'next-auth/react';
-import { User } from '@/types/user';
+import { AppUser } from '@/types/user';
 
 interface LoginFormProps {
-  onLogin: (user: User) => void;
+  onLogin: (user: AppUser) => void;
 }
 
 export default function LoginForm({ onLogin }: LoginFormProps) {

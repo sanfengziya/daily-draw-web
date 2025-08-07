@@ -1,4 +1,7 @@
-import { NextAuthOptions } from 'next-auth'
+import NextAuth from 'next-auth'
+import type { NextAuthOptions } from 'next-auth'
+import type { User, Account, Session } from 'next-auth'
+import type { JWT } from 'next-auth/jwt'
 import DiscordProvider from 'next-auth/providers/discord'
 import mysql from 'mysql2/promise'
 
@@ -19,7 +22,7 @@ export const authOptions: NextAuthOptions = {
     })
   ],
   callbacks: {
-    async signIn({ user, account, profile }) {
+    async signIn({ user, account }: { user: User; account: Account | null }) {
       if (account?.provider === 'discord' && user.id) {
         try {
           // 连接数据库
@@ -47,7 +50,7 @@ export const authOptions: NextAuthOptions = {
                 'INSERT INTO users (user_id, points, paid_draws_today) VALUES (?, ?, ?)',
                 [user.id, 0, 0]
               );
-              console.log(`新用户创建成功: ${user.id} (${user.name})`);
+              console.log(`新用户创建成功: ${user.id} (${user.name || user.email || 'Unknown'})`);
             }
             
             return true;
@@ -61,13 +64,13 @@ export const authOptions: NextAuthOptions = {
       }
       return true;
     },
-    async session({ session, token }) {
+    async session({ session, token }: { session: Session; token: JWT }) {
       if (session.user && token.sub) {
         session.user.id = token.sub;
       }
       return session;
     },
-    async jwt({ token, user }) {
+    async jwt({ token, user }: { token: JWT; user?: User }) {
       if (user) {
         token.sub = user.id;
       }

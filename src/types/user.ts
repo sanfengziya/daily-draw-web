@@ -1,5 +1,5 @@
 // 用户接口
-export interface User {
+export interface AppUser {
   user_id: string;
   points: number;
   last_draw: string | null;
@@ -28,7 +28,7 @@ export interface LoginRequest {
 // 登录响应接口
 export interface LoginResponse {
   success: boolean;
-  user?: User;
+  user?: AppUser;
   message?: string;
 }
 

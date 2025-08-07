@@ -1,10 +1,10 @@
 'use client';
 
 import { signOut } from 'next-auth/react';
-import { User } from '@/types/user';
+import { AppUser } from '@/types/user';
 
 interface UserInfoProps {
-  user: User;
+  user: AppUser;
   onLogout: () => void;
 }
 

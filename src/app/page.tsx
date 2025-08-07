@@ -6,12 +6,12 @@ import GachaSystem from '../components/GachaSystem';
 import LoginForm from '../components/LoginForm';
 import UserInfo from '../components/UserInfo';
 import UserInventory from '../components/UserInventory';
-import { User } from '../types/user';
+import { AppUser } from '../types/user';
 import '../styles/gacha.css';
 
 export default function Home() {
   const { data: session, status } = useSession();
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<AppUser | null>(null);
   const [activeTab, setActiveTab] = useState<'gacha' | 'inventory'>('gacha');
   const [loading, setLoading] = useState(true);
 
@@ -53,7 +53,7 @@ export default function Home() {
     fetchUserData();
   }, [session, status]);
 
-  const handleLogin = (userData: User) => {
+  const handleLogin = (userData: AppUser) => {
     setUser(userData);
   };
 

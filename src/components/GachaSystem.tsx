@@ -2,13 +2,13 @@
 
 import { useState, useEffect } from 'react';
 import { PullResult } from '../types/card';
-import { User } from '../types/user';
+import { AppUser } from '../types/user';
 import { pullCard, getHighestRarity, sleep, initializeCards } from '../utils/gacha';
 import Card from './Card';
 import CardPack from './CardPack';
 
 interface GachaSystemProps {
-  user: User;
+  user: AppUser;
 }
 
 export default function GachaSystem({ user }: GachaSystemProps) {
