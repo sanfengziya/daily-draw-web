@@ -50,6 +50,13 @@ export default function UserInventory({ uid }: UserInventoryProps) {
         const starsSet = new Set<number>(data.cards.map((card: UserCard) => card.stars));
         const stars = Array.from(starsSet).sort((a: number, b: number) => a - b);
         const rarities = [...new Set(data.cards.map((card: UserCard) => card.card_rarity))] as string[];
+        // 按照稀有度从高到低排序
+        const rarityOrder = ['UR', 'SSR', 'SR', 'R', 'N'];
+        rarities.sort((a, b) => {
+          const indexA = rarityOrder.indexOf(a);
+          const indexB = rarityOrder.indexOf(b);
+          return indexA - indexB;
+        });
         setAvailableStars(stars);
         setAvailableRarities(rarities);
       }
@@ -130,7 +137,7 @@ export default function UserInventory({ uid }: UserInventoryProps) {
             <select 
               value={filterType} 
               onChange={(e) => handleFilterChange(e.target.value as 'stars' | 'rarity' | '', '')}
-              className="px-3 py-1 border border-gray-300 rounded-md text-sm"
+              className="px-3 py-1 border border-gray-300 rounded-md text-sm bg-white text-gray-900 focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
             >
               <option value="">全部</option>
               <option value="stars">按星级</option>
@@ -144,7 +151,7 @@ export default function UserInventory({ uid }: UserInventoryProps) {
               <select 
                 value={filterValue} 
                 onChange={(e) => handleFilterChange('stars', e.target.value)}
-                className="px-3 py-1 border border-gray-300 rounded-md text-sm"
+                className="px-3 py-1 border border-gray-300 rounded-md text-sm bg-white text-gray-900 focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
               >
                 <option value="">选择星级</option>
                 {availableStars.map(star => (
@@ -160,7 +167,7 @@ export default function UserInventory({ uid }: UserInventoryProps) {
               <select 
                 value={filterValue} 
                 onChange={(e) => handleFilterChange('rarity', e.target.value)}
-                className="px-3 py-1 border border-gray-300 rounded-md text-sm"
+                className="px-3 py-1 border border-gray-300 rounded-md text-sm bg-white text-gray-900 focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
               >
                 <option value="">选择稀有度</option>
                 {availableRarities.map(rarity => (
