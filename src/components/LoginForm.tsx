@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+
 import { signIn } from 'next-auth/react';
 import { AppUser } from '@/types/user';
 
@@ -9,46 +9,8 @@ interface LoginFormProps {
 }
 
 export default function LoginForm({ onLogin }: LoginFormProps) {
-  const [uid, setUid] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
-
   const handleDiscordLogin = () => {
     signIn('discord');
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!uid.trim()) {
-      setError('请输入用户ID');
-      return;
-    }
-
-    setLoading(true);
-    setError('');
-
-    try {
-      const response = await fetch('/api/auth/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ uid: uid.trim() }),
-      });
-
-      const data = await response.json();
-
-      if (data.success && data.user) {
-        onLogin(data.user);
-      } else {
-        setError(data.message || '登录失败');
-      }
-    } catch (error) {
-      console.error('登录错误:', error);
-      setError('网络错误，请稍后重试');
-    } finally {
-      setLoading(false);
-    }
   };
 
   return (
@@ -58,42 +20,10 @@ export default function LoginForm({ onLogin }: LoginFormProps) {
           每日抽卡
         </h1>
         
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <div>
-            <label htmlFor="uid" className="block text-sm font-medium text-gray-700 mb-2">
-              用户ID
-            </label>
-            <input
-              type="text"
-              id="uid"
-              value={uid}
-              onChange={(e) => setUid(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              placeholder="请输入您的用户ID"
-              disabled={loading}
-            />
-          </div>
-
-          {error && (
-            <div className="text-red-600 text-sm text-center">
-              {error}
-            </div>
-          )}
-
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-          >
-            {loading ? '登录中...' : '登录'}
-          </button>
-        </form>
-
-        {/* 分隔线 */}
-        <div className="my-6 flex items-center">
-          <div className="flex-1 border-t border-gray-300"></div>
-          <span className="px-4 text-sm text-gray-500">或</span>
-          <div className="flex-1 border-t border-gray-300"></div>
+        <div className="mb-8">
+          <p className="text-center text-gray-600 mb-6">
+            请使用 Discord 账号登录以开始游戏
+          </p>
         </div>
 
         {/* Discord登录按钮 */}
@@ -108,7 +38,7 @@ export default function LoginForm({ onLogin }: LoginFormProps) {
         </button>
 
         <p className="text-xs text-gray-500 text-center mt-6">
-          如果您是新用户，系统将自动为您创建账号
+          使用 Discord 登录，如果您是新用户，系统将自动为您创建账号
         </p>
       </div>
     </div>

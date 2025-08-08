@@ -20,17 +20,7 @@ export interface UserCard {
   count?: number; // 堆叠数量，可选字段
 }
 
-// 登录请求接口
-export interface LoginRequest {
-  uid: string;
-}
 
-// 登录响应接口
-export interface LoginResponse {
-  success: boolean;
-  user?: AppUser;
-  message?: string;
-}
 
 // 用户库存响应接口
 export interface UserInventoryResponse {
