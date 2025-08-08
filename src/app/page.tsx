@@ -25,13 +25,7 @@ export default function Home() {
       if (status === 'authenticated' && session?.user?.id) {
         try {
           // 使用session中的用户ID获取用户数据
-          const response = await fetch('/api/auth/login', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ uid: session.user.id }),
-          });
+          const response = await fetch(`/api/user/profile?uid=${session.user.id}`);
 
           const data = await response.json();
           if (data.success && data.user) {
