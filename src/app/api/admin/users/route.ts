@@ -1,5 +1,5 @@
-import { NextRequest, NextResponse } from 'next/server';
-import mysql from 'mysql2/promise';
+import { NextResponse } from 'next/server';
+import mysql, { RowDataPacket, FieldPacket } from 'mysql2/promise';
 
 // 数据库连接配置
 const dbConfig = {
@@ -10,7 +10,7 @@ const dbConfig = {
   port: parseInt(process.env.DB_PORT || '3306')
 };
 
-export async function GET(request: NextRequest) {
+export async function GET() {
   let connection;
   
   try {
@@ -20,7 +20,7 @@ export async function GET(request: NextRequest) {
     // 获取所有用户
     const [rows] = await connection.execute(
       'SELECT user_id as id, user_id as username, points, last_draw as created_at FROM users ORDER BY last_draw DESC'
-    ) as [any[], any];  return NextResponse.json({
+    ) as [RowDataPacket[], FieldPacket[]];  return NextResponse.json({
       success: true,
       users: rows,
       total: Array.isArray(rows) ? rows.length : 0

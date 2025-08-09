@@ -72,7 +72,7 @@ export default function Home() {
   }
 
   if (!user) {
-    return <LoginForm onLogin={handleLogin} />;
+    return <LoginForm />;
   }
 
   return (

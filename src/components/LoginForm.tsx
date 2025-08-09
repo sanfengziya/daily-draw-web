@@ -2,13 +2,8 @@
 
 
 import { signIn } from 'next-auth/react';
-import { AppUser } from '@/types/user';
 
-interface LoginFormProps {
-  onLogin: (user: AppUser) => void;
-}
-
-export default function LoginForm({ onLogin }: LoginFormProps) {
+export default function LoginForm() {
   const handleDiscordLogin = () => {
     signIn('discord');
   };

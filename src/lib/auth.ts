@@ -1,4 +1,3 @@
-import NextAuth from 'next-auth'
 import type { NextAuthOptions } from 'next-auth'
 import type { User, Account, Session } from 'next-auth'
 import type { JWT } from 'next-auth/jwt'
