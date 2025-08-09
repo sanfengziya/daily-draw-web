@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import mysql from 'mysql2/promise';
+import { adminAuthMiddleware } from '@/lib/adminAuth';
 
 // 数据库连接配置
 const dbConfig = {
@@ -11,6 +12,12 @@ const dbConfig = {
 };
 
 export async function POST(request: NextRequest) {
+  // 验证管理员权限
+  const authError = await adminAuthMiddleware(request);
+  if (authError) {
+    return authError;
+  }
+
   let connection;
   
   try {

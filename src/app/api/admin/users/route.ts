@@ -1,5 +1,6 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import mysql, { RowDataPacket, FieldPacket } from 'mysql2/promise';
+import { adminAuthMiddleware } from '@/lib/adminAuth';
 
 // 数据库连接配置
 const dbConfig = {
@@ -10,7 +11,13 @@ const dbConfig = {
   port: parseInt(process.env.DB_PORT || '3306')
 };
 
-export async function GET() {
+export async function GET(request: NextRequest) {
+  // 验证管理员权限
+  const authError = await adminAuthMiddleware(request);
+  if (authError) {
+    return authError;
+  }
+
   let connection;
   
   try {

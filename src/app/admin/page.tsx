@@ -1,6 +1,8 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useSession } from 'next-auth/react';
+import { signIn } from 'next-auth/react';
 import '../../styles/admin.css';
 
 interface User {
@@ -15,11 +17,19 @@ interface UserWithActions extends User {
   tempPoints?: number;
 }
 
+// 管理员用户ID列表（可以根据需要修改）
+const ADMIN_USER_IDS = [
+  '393007695958671360', // 替换为实际的管理员Discord用户ID
+  // 可以添加更多管理员ID
+];
+
 export default function AdminPage() {
+  const { data: session, status } = useSession();
   const [users, setUsers] = useState<UserWithActions[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
+  const [isAuthorized, setIsAuthorized] = useState(false);
 
   // 获取所有用户
   const fetchUsers = async () => {
@@ -113,9 +123,28 @@ export default function AdminPage() {
     user.id.includes(searchTerm)
   );
 
+  // 检查用户权限
   useEffect(() => {
-    fetchUsers();
-  }, []);
+    if (status === 'loading') {
+      return; // 仍在加载session
+    }
+    
+    if (status === 'unauthenticated') {
+      setLoading(false);
+      return;
+    }
+    
+    if (status === 'authenticated' && session?.user?.id) {
+      const isAdmin = ADMIN_USER_IDS.includes(session.user.id);
+      setIsAuthorized(isAdmin);
+      
+      if (isAdmin) {
+        fetchUsers();
+      } else {
+        setLoading(false);
+      }
+    }
+  }, [session, status]);
 
   if (loading) {
     return (
@@ -123,6 +152,43 @@ export default function AdminPage() {
         <div className="loading-spinner">
           <div className="spinner"></div>
           <p>加载中...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // 未登录用户
+  if (status === 'unauthenticated') {
+    return (
+      <div className="admin-container">
+        <div className="admin-header">
+          <h1 className="admin-title">🔒 管理员登录</h1>
+          <p className="admin-subtitle">请先登录以访问管理员面板</p>
+        </div>
+        <div className="auth-container">
+          <button 
+            onClick={() => signIn('discord')}
+            className="login-button"
+          >
+            使用 Discord 登录
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  // 已登录但无权限的用户
+  if (status === 'authenticated' && !isAuthorized) {
+    return (
+      <div className="admin-container">
+        <div className="admin-header">
+          <h1 className="admin-title">⛔ 访问被拒绝</h1>
+          <p className="admin-subtitle">您没有访问管理员面板的权限</p>
+        </div>
+        <div className="auth-container">
+          <p className="error-text">当前用户: {session?.user?.name}</p>
+          <p className="error-text">用户ID: {session?.user?.id}</p>
+          <p className="info-text">如需管理员权限，请联系系统管理员</p>
         </div>
       </div>
     );
