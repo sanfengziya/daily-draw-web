@@ -570,3 +570,99 @@
     transform: translateY(0);
   }
 }
+
+/* 积分显示样式 */
+.points-display {
+  text-align: center;
+  padding: 15px 20px;
+  background: linear-gradient(135deg, rgba(79, 172, 254, 0.1), rgba(74, 108, 247, 0.1));
+  border-radius: 15px;
+  margin: 0 20px 20px 20px;
+  border: 2px solid rgba(79, 172, 254, 0.3);
+  backdrop-filter: blur(10px);
+}
+
+.points-label {
+  color: #4facfe;
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin-right: 10px;
+  text-shadow: 0 0 10px rgba(79, 172, 254, 0.3);
+}
+
+.points-value {
+  color: #00f2fe;
+  font-size: 1.3rem;
+  font-weight: bold;
+  text-shadow: 0 0 15px rgba(0, 242, 254, 0.5);
+  animation: pointsGlow 2s ease-in-out infinite alternate;
+}
+
+@keyframes pointsGlow {
+  from {
+    text-shadow: 0 0 15px rgba(0, 242, 254, 0.5);
+  }
+  to {
+    text-shadow: 0 0 25px rgba(0, 242, 254, 0.8), 0 0 35px rgba(79, 172, 254, 0.4);
+  }
+}
+
+/* 积分不足提示样式 */
+.insufficient-points {
+  position: absolute;
+  bottom: -25px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: linear-gradient(135deg, #ff4757, #ff3742);
+  color: white;
+  padding: 4px 8px;
+  border-radius: 8px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  white-space: nowrap;
+  box-shadow: 0 2px 8px rgba(255, 71, 87, 0.3);
+  animation: insufficientBlink 1.5s ease-in-out infinite;
+}
+
+@keyframes insufficientBlink {
+  0%, 100% {
+    opacity: 0.8;
+    transform: translateX(-50%) scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: translateX(-50%) scale(1.05);
+  }
+}
+
+/* 按钮容器相对定位 */
+.pull-button {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 24px;
+  border: none;
+  border-radius: 25px;
+  font-size: 1rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  min-width: 150px;
+  justify-content: center;
+}
+
+/* 积分不足时的按钮样式 */
+.pull-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  background: linear-gradient(135deg, #6c757d, #5a6268) !important;
+  transform: none !important;
+  box-shadow: none !important;
+}
+
+.pull-button:disabled:hover {
+  transform: none !important;
+  box-shadow: none !important;
+}

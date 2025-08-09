@@ -9,15 +9,17 @@ import CardPack from './CardPack';
 
 interface GachaSystemProps {
   user: AppUser;
+  onUserUpdate: (updatedUser: AppUser) => void; // 用于更新用户信息的回调
 }
 
-export default function GachaSystem({ user }: GachaSystemProps) {
+export default function GachaSystem({ user, onUserUpdate }: GachaSystemProps) {
   const [results, setResults] = useState<PullResult[]>([]);
   const [isPackVisible, setIsPackVisible] = useState(false);
   const [currentCards, setCurrentCards] = useState<PullResult[]>([]);
   const [revealedCards, setRevealedCards] = useState<boolean[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isProcessing, setIsProcessing] = useState(false); // 处理抽卡中的状态
 
   // 初始化卡片数据
   useEffect(() => {
@@ -60,6 +62,38 @@ export default function GachaSystem({ user }: GachaSystemProps) {
     );
   }
 
+  // 扣除用户积分
+  const deductPoints = async (points: number) => {
+    try {
+      const response = await fetch('/api/user/update-points', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          uid: user.user_id,
+          points,
+          operation: 'deduct'
+        }),
+      });
+      
+      const result = await response.json();
+      
+      if (!result.success) {
+        throw new Error(result.message || '积分扣除失败');
+      }
+      
+      // 更新用户积分
+      const updatedUser = { ...user, points: result.newPoints };
+      onUserUpdate(updatedUser);
+      
+      return result;
+    } catch (error) {
+      console.error('扣除积分失败:', error);
+      throw error;
+    }
+  };
+
   // 保存抽卡结果到数据库
   const saveCardsToDatabase = async (cards: PullResult[]) => {
     try {
@@ -84,19 +118,63 @@ export default function GachaSystem({ user }: GachaSystemProps) {
   };
 
   const handleSinglePull = async () => {
-    const card = pullCard();
-    setCurrentCards([card]);
-    setIsPackVisible(true);
-    // 保存到数据库
-    await saveCardsToDatabase([card]);
+    const requiredPoints = 120;
+    
+    // 检查积分是否足够
+    if (user.points < requiredPoints) {
+      alert(`积分不足！单抽需要 ${requiredPoints} 积分，您当前有 ${user.points} 积分。`);
+      return;
+    }
+    
+    setIsProcessing(true);
+    
+    try {
+      // 先扣除积分
+      await deductPoints(requiredPoints);
+      
+      // 抽卡
+      const card = pullCard();
+      setCurrentCards([card]);
+      setIsPackVisible(true);
+      
+      // 保存到数据库
+      await saveCardsToDatabase([card]);
+    } catch (error) {
+      console.error('单抽失败:', error);
+      alert('抽卡失败，请稍后重试');
+    } finally {
+      setIsProcessing(false);
+    }
   };
 
   const handleTenPull = async () => {
-    const cards = Array.from({ length: 10 }, () => pullCard());
-    setCurrentCards(cards);
-    setIsPackVisible(true);
-    // 保存到数据库
-    await saveCardsToDatabase(cards);
+    const requiredPoints = 1200;
+    
+    // 检查积分是否足够
+    if (user.points < requiredPoints) {
+      alert(`积分不足！十连抽需要 ${requiredPoints} 积分，您当前有 ${user.points} 积分。`);
+      return;
+    }
+    
+    setIsProcessing(true);
+    
+    try {
+      // 先扣除积分
+      await deductPoints(requiredPoints);
+      
+      // 抽卡
+      const cards = Array.from({ length: 10 }, () => pullCard());
+      setCurrentCards(cards);
+      setIsPackVisible(true);
+      
+      // 保存到数据库
+      await saveCardsToDatabase(cards);
+    } catch (error) {
+      console.error('十连抽失败:', error);
+      alert('抽卡失败，请稍后重试');
+    } finally {
+      setIsProcessing(false);
+    }
   };
 
   const handlePackOpened = async () => {
@@ -149,19 +227,27 @@ export default function GachaSystem({ user }: GachaSystemProps) {
         <button 
           className="pull-button single-pull"
           onClick={handleSinglePull}
-          disabled={isPackVisible}
+          disabled={isPackVisible || isProcessing || user.points < 120}
         >
           <span className="button-icon">⭐</span>
-          <span>单抽</span>
+          <span>单抽 (120积分)</span>
+          {user.points < 120 && <div className="insufficient-points">积分不足</div>}
         </button>
         <button 
           className="pull-button ten-pull"
           onClick={handleTenPull}
-          disabled={isPackVisible}
+          disabled={isPackVisible || isProcessing || user.points < 1200}
         >
           <span className="button-icon">✨</span>
-          <span>十连抽</span>
+          <span>十连抽 (1200积分)</span>
+          {user.points < 1200 && <div className="insufficient-points">积分不足</div>}
         </button>
+      </div>
+      
+      {/* 用户积分显示 */}
+      <div className="points-display">
+        <span className="points-label">当前积分:</span>
+        <span className="points-value">{user.points}</span>
       </div>
     </div>
   );

@@ -56,6 +56,10 @@ export default function Home() {
     setActiveTab('gacha');
   };
 
+  const handleUserUpdate = (updatedUser: AppUser) => {
+    setUser(updatedUser);
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-100 flex items-center justify-center">
@@ -104,7 +108,7 @@ export default function Home() {
         
         {/* 内容区域 */}
         {activeTab === 'gacha' ? (
-          <GachaSystem user={user} />
+          <GachaSystem user={user} onUserUpdate={handleUserUpdate} />
         ) : (
           <UserInventory uid={user.user_id} />
         )}
