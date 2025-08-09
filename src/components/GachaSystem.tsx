@@ -231,7 +231,6 @@ export default function GachaSystem({ user, onUserUpdate }: GachaSystemProps) {
         >
           <span className="button-icon">⭐</span>
           <span>单抽 (120积分)</span>
-          {user.points < 120 && <div className="insufficient-points">积分不足</div>}
         </button>
         <button 
           className="pull-button ten-pull"
@@ -240,7 +239,6 @@ export default function GachaSystem({ user, onUserUpdate }: GachaSystemProps) {
         >
           <span className="button-icon">✨</span>
           <span>十连抽 (1200积分)</span>
-          {user.points < 1200 && <div className="insufficient-points">积分不足</div>}
         </button>
       </div>
       

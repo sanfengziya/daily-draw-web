@@ -658,34 +658,7 @@
   }
 }
 
-/* 积分不足提示样式 */
-.insufficient-points {
-  position: absolute;
-  bottom: -30px;
-  left: 50%;
-  transform: translateX(-50%);
-  background: linear-gradient(135deg, #ff4757, #ff3742);
-  color: white;
-  padding: 6px 12px;
-  border-radius: 12px;
-  font-size: 0.8rem;
-  font-weight: 600;
-  white-space: nowrap;
-  box-shadow: 0 4px 12px rgba(255, 71, 87, 0.4);
-  animation: insufficientBlink 1.5s ease-in-out infinite;
-  z-index: 10;
-}
 
-@keyframes insufficientBlink {
-  0%, 100% {
-    opacity: 0.8;
-    transform: translateX(-50%) scale(1);
-  }
-  50% {
-    opacity: 1;
-    transform: translateX(-50%) scale(1.05);
-  }
-}
 
 /* 按钮容器相对定位 */
 .pull-button {
@@ -750,11 +723,5 @@
     padding: 14px 28px;
     font-size: 1rem;
     min-height: 55px;
-  }
-  
-  .insufficient-points {
-    bottom: -25px;
-    font-size: 0.75rem;
-    padding: 4px 8px;
   }
 }
