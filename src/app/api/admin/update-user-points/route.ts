@@ -34,7 +34,7 @@ export async function POST(request: NextRequest) {
     try {
       // 检查用户是否存在
       const [userRows] = await connection.execute(
-        'SELECT id, username FROM users WHERE id = ?',
+        'SELECT user_id, user_id as username FROM users WHERE user_id = ?',
         [userId]
       );
 
@@ -48,13 +48,13 @@ export async function POST(request: NextRequest) {
 
       // 更新用户积分
       await connection.execute(
-        'UPDATE users SET points = ? WHERE id = ?',
+        'UPDATE users SET points = ? WHERE user_id = ?',
         [points, userId]
       );
 
       // 获取更新后的用户信息
       const [updatedRows] = await connection.execute(
-        'SELECT id, username, points FROM users WHERE id = ?',
+        'SELECT user_id as id, user_id as username, points FROM users WHERE user_id = ?',
         [userId]
       );
 

@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import '../../styles/admin.css';
 
 interface User {
-  id: number;
+  id: string;
   username: string;
   points: number;
   created_at: string;
@@ -44,7 +44,7 @@ export default function AdminPage() {
   };
 
   // 更新用户积分
-  const updateUserPoints = async (userId: number, newPoints: number) => {
+  const updateUserPoints = async (userId: string, newPoints: number) => {
     try {
       const response = await fetch('/api/admin/update-user-points', {
         method: 'POST',
@@ -73,7 +73,7 @@ export default function AdminPage() {
   };
 
   // 开始编辑
-  const startEdit = (userId: number, currentPoints: number) => {
+  const startEdit = (userId: string, currentPoints: number) => {
     setUsers(prev => prev.map(user => 
       user.id === userId 
         ? { ...user, isEditing: true, tempPoints: currentPoints }
@@ -82,7 +82,7 @@ export default function AdminPage() {
   };
 
   // 取消编辑
-  const cancelEdit = (userId: number) => {
+  const cancelEdit = (userId: string) => {
     setUsers(prev => prev.map(user => 
       user.id === userId 
         ? { ...user, isEditing: false, tempPoints: undefined }
@@ -91,7 +91,7 @@ export default function AdminPage() {
   };
 
   // 保存编辑
-  const saveEdit = (userId: number) => {
+  const saveEdit = (userId: string) => {
     const user = users.find(u => u.id === userId);
     if (user && user.tempPoints !== undefined) {
       updateUserPoints(userId, user.tempPoints);
@@ -99,7 +99,7 @@ export default function AdminPage() {
   };
 
   // 快速调整积分
-  const adjustPoints = (userId: number, amount: number) => {
+  const adjustPoints = (userId: string, amount: number) => {
     const user = users.find(u => u.id === userId);
     if (user) {
       const newPoints = Math.max(0, user.points + amount);
@@ -110,7 +110,7 @@ export default function AdminPage() {
   // 过滤用户
   const filteredUsers = users.filter(user => 
     user.username.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    user.id.toString().includes(searchTerm)
+    user.id.includes(searchTerm)
   );
 
   useEffect(() => {

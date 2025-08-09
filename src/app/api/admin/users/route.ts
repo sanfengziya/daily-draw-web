@@ -19,10 +19,8 @@ export async function GET(request: NextRequest) {
     
     // 获取所有用户
     const [rows] = await connection.execute(
-      'SELECT id, username, points, created_at FROM users ORDER BY created_at DESC'
-    );
-
-    return NextResponse.json({
+      'SELECT user_id as id, user_id as username, points, last_draw as created_at FROM users ORDER BY last_draw DESC'
+    ) as [any[], any];  return NextResponse.json({
       success: true,
       users: rows,
       total: Array.isArray(rows) ? rows.length : 0
