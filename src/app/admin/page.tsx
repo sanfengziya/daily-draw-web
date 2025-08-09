@@ -17,11 +17,12 @@ interface UserWithActions extends User {
   tempPoints?: number;
 }
 
-// 管理员用户ID列表（可以根据需要修改）
-const ADMIN_USER_IDS = [
-  '393007695958671360', // 替换为实际的管理员Discord用户ID
-  // 可以添加更多管理员ID
-];
+// 管理员配置接口
+interface AdminConfig {
+  isAdmin: boolean;
+  userId: string;
+  adminUserIds: string[];
+}
 
 export default function AdminPage() {
   const { data: session, status } = useSession();
@@ -30,6 +31,25 @@ export default function AdminPage() {
   const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [isAuthorized, setIsAuthorized] = useState(false);
+  const [adminConfig, setAdminConfig] = useState<AdminConfig | null>(null);
+
+  // 获取管理员配置
+  const fetchAdminConfig = async () => {
+    try {
+      const response = await fetch('/api/admin/config');
+      if (!response.ok) {
+        throw new Error('获取管理员配置失败');
+      }
+      const config: AdminConfig = await response.json();
+      setAdminConfig(config);
+      setIsAuthorized(config.isAdmin);
+      return config;
+    } catch (err) {
+      console.error('获取管理员配置错误:', err);
+      setIsAuthorized(false);
+      return null;
+    }
+  };
 
   // 获取所有用户
   const fetchUsers = async () => {
@@ -135,14 +155,14 @@ export default function AdminPage() {
     }
     
     if (status === 'authenticated' && session?.user?.id) {
-      const isAdmin = ADMIN_USER_IDS.includes(session.user.id);
-      setIsAuthorized(isAdmin);
-      
-      if (isAdmin) {
-        fetchUsers();
-      } else {
-        setLoading(false);
-      }
+      // 获取管理员配置并检查权限
+      fetchAdminConfig().then(config => {
+        if (config && config.isAdmin) {
+          fetchUsers();
+        } else {
+          setLoading(false);
+        }
+      });
     }
   }, [session, status]);
 
@@ -188,6 +208,9 @@ export default function AdminPage() {
         <div className="auth-container">
           <p className="error-text">当前用户: {session?.user?.name}</p>
           <p className="error-text">用户ID: {session?.user?.id}</p>
+          {adminConfig && adminConfig.adminUserIds.length > 0 && (
+            <p className="info-text">授权管理员数量: {adminConfig.adminUserIds.length}</p>
+          )}
           <p className="info-text">如需管理员权限，请联系系统管理员</p>
         </div>
       </div>

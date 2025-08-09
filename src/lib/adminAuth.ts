@@ -1,11 +1,18 @@
 import { NextRequest } from 'next/server';
 import { getToken } from 'next-auth/jwt';
 
-// 管理员用户ID列表
-const ADMIN_USER_IDS = [
-  '393007695958671360', // 替换为实际的管理员Discord用户ID
-  // 可以添加更多管理员ID
-];
+// 从环境变量读取管理员用户ID列表
+const getAdminUserIds = (): string[] => {
+  const adminIds = process.env.ADMIN_USER_ID;
+  if (!adminIds) {
+    console.warn('未设置ADMIN_USER_ID环境变量');
+    return [];
+  }
+  // 支持逗号分隔的多个管理员ID
+  return adminIds.split(',').map(id => id.trim()).filter(id => id.length > 0);
+};
+
+const ADMIN_USER_IDS = getAdminUserIds();
 
 /**
  * 验证用户是否为管理员
