@@ -9,7 +9,7 @@ const dbConfig = {
   host: process.env.DB_HOST || 'localhost',
   user: process.env.DB_USER || 'root',
   password: process.env.DB_PASSWORD || '',
-  database: process.env.DB_NAME || 'daily_draw',
+  database: process.env.DB_NAME || 'railway',
   port: parseInt(process.env.DB_PORT || '3306')
 };
 
@@ -38,7 +38,6 @@ export const authOptions: NextAuthOptions = {
               user_id: string;
               points: number;
               last_draw: string | null;
-              last_wheel: string | null;
               paid_draws_today: number;
               last_paid_draw_date: string | null;
             }>;

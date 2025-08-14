@@ -2,8 +2,7 @@
 export interface AppUser {
   user_id: string;
   points: number;
-  last_draw: string | null;
-  last_wheel: string | null;
+  last_draw: string | null; // bot抽奖时间
   paid_draws_today: number;
   last_paid_draw_date: string | null;
 }

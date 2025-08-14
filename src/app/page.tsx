@@ -78,7 +78,7 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-gray-100">
       <div className="container mx-auto px-4 py-8">
-        <UserInfo user={user} onLogout={handleLogout} />
+        <UserInfo user={user} session={session} onLogout={handleLogout} />
         
         {/* 导航标签 */}
         <div className="bg-white rounded-lg shadow-lg mb-6">

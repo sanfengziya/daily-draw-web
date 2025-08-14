@@ -6,7 +6,7 @@ const dbConfig = {
   host: process.env.DB_HOST || 'localhost',
   user: process.env.DB_USER || 'root',
   password: process.env.DB_PASSWORD || '',
-  database: process.env.DB_NAME || 'daily_draw',
+  database: process.env.DB_NAME || 'railway',
   port: parseInt(process.env.DB_PORT || '3306')
 };
 
@@ -36,7 +36,6 @@ export async function GET(request: NextRequest) {
         user_id: string;
         points: number;
         last_draw: string | null;
-        last_wheel: string | null;
         paid_draws_today: number;
         last_paid_draw_date: string | null;
       }>;
@@ -45,8 +44,8 @@ export async function GET(request: NextRequest) {
       if (users.length === 0) {
         // 用户不存在，创建新用户
         await connection.execute(
-          'INSERT INTO users (user_id, points, last_draw, last_wheel, paid_draws_today, last_paid_draw_date) VALUES (?, ?, ?, ?, ?, ?)',
-          [uid, 0, null, null, 0, null]
+          'INSERT INTO users (user_id, points, last_draw, paid_draws_today, last_paid_draw_date) VALUES (?, ?, ?, ?, ?)',
+          [uid, 0, null, 0, null]
         );
         
         // 获取新创建的用户数据
@@ -77,7 +76,6 @@ export async function GET(request: NextRequest) {
           user_id: user.user_id,
           points: user.points,
           last_draw: user.last_draw,
-          last_wheel: user.last_wheel,
           paid_draws_today: user.paid_draws_today,
           last_paid_draw_date: user.last_paid_draw_date
         }
